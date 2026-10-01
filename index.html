@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Compras — Lista de compras inteligente</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">🛒</div>
+
+      <h1>Bem-vindo ao <span>Compras</span></h1>
+      <p>Crie sua conta para organizar suas listas de compras.</p>
+
+      <div class="auth-tabs">
+        <button id="signupTab" class="auth-tab active" onclick="showAuth('signup')">
+          Criar conta
+        </button>
+
+        <button id="loginTab" class="auth-tab" onclick="showAuth('login')">
+          Entrar
+        </button>
+      </div>
+
+      <div id="signupForm">
+        <div class="auth-field">
+          <label>Nome</label>
+          <input id="signupName" placeholder="Seu nome">
+        </div>
+
+        <div class="auth-field">
+          <label>E-mail</label>
+          <input id="signupEmail" type="email" placeholder="seuemail@email.com">
+        </div>
+
+        <div class="auth-field">
+          <label>Senha</label>
+          <input id="signupPassword" type="password" placeholder="Crie uma senha">
+        </div>
+
+        <div class="auth-field">
+          <label>Confirmar senha</label>
+          <input id="signupConfirm" type="password" placeholder="Digite a senha novamente">
+        </div>
+
+        <button class="auth-submit" onclick="signup()">
+          Criar minha conta
+        </button>
+      </div>
+
+      <div id="loginForm" style="display:none">
+        <div class="auth-field">
+          <label>E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seuemail@email.com">
+        </div>
+
+        <div class="auth-field">
+          <label>Senha</label>
+          <input id="loginPassword" type="password" placeholder="Sua senha">
+        </div>
+
+        <button class="auth-submit" onclick="login()">
+          Entrar
+        </button>
+      </div>
+
+      <p id="authMessage" class="auth-message"></p>
+    </div>
+  </div>
+
+
+  <div class="app" id="appContent" style="display:none">
+
+    <header>
+      <div class="logo">
+        <div class="logo-badge">🛒</div>
+        <span>Compras</span>
+      </div>
+
+      <div class="header-actions">
+        <span id="userName" class="user-name"></span>
+
+        <button class="icon-btn" title="Compartilhar" onclick="shareList()">
+          ↗
+        </button>
+
+        <button class="icon-btn" title="Adicionar" onclick="openModal()">
+          ＋
+        </button>
+
+        <button class="icon-btn" title="Sair" onclick="logout()">
+          ↪
+        </button>
+      </div>
+    </header>
+
+
+    <section class="hero">
+      <div>
+        <h1>
+          Olá! 👋<br>
+          O que vamos comprar hoje?
+        </h1>
+
+        <p>
+          Organize sua lista, marque o que já comprou
+          e compre sem esquecer nada.
+        </p>
+      </div>
+
+      <div class="hero-icon">🛍️</div>
+    </section>
+
+
+    <div class="layout">
+
+      <main class="card main-card">
+
+        <div class="section-title">
+          <div>
+            <h2>Mercado da semana</h2>
+            <span class="small" id="countText">0 itens</span>
+          </div>
+
+          <button class="icon-btn" onclick="openModal()">＋</button>
+        </div>
+
+
+        <div class="search">
+          🔎
+          <input
+            id="search"
+            placeholder="Buscar produto..."
+            oninput="render()"
+          >
+        </div>
+
+
+        <div class="tabs">
+          <button
+            class="tab active"
+            data-filter="all"
+            onclick="setFilter('all',this)"
+          >
+            Todos
+          </button>
+
+          <button
+            class="tab"
+            data-filter="pending"
+            onclick="setFilter('pending',this)"
+          >
+            Pendentes
+          </button>
+
+          <button
+            class="tab"
+            data-filter="done"
+            onclick="setFilter('done',this)"
+          >
+            Comprados
+          </button>
+        </div>
+
+
+        <div class="section-title">
+          <h2>Itens da lista</h2>
+          <span class="small" id="progressText"></span>
+        </div>
+
+
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+
+
+        <div id="list" class="list"></div>
+
+
+        <button
+          class="add"
+          style="margin-top:16px"
+          onclick="openModal()"
+        >
+          ＋ Adicionar produto
+        </button>
+
+      </main>
+
+
+      <aside class="card side">
+
+        <h2>Lista inteligente ✨</h2>
+
+        <p class="small">
+          Adicione produtos com quantidade e categoria
+          para deixar suas compras mais organizadas.
+        </p>
+
+        <button class="add" onclick="shareList()">
+          ↗ Compartilhar lista
+        </button>
+
+
+        <div class="section-title" style="margin-top:22px">
+          <h2>Categorias</h2>
+        </div>
+
+
+        <div class="categories">
+
+          <button class="cat" onclick="filterCategory('Alimentos')">
+            <span>🥫</span>
+
+            <div>
+              <b>Alimentos</b>
+              <small id="catAlimentos">0 itens</small>
+            </div>
+          </button>
+
+
+          <button class="cat" onclick="filterCategory('Bebidas')">
+            <span>🥤</span>
+
+            <div>
+              <b>Bebidas</b>
+              <small id="catBebidas">0 itens</small>
+            </div>
+          </button>
+
+
+          <button class="cat" onclick="filterCategory('Higiene')">
+            <span>🧴</span>
+
+            <div>
+              <b>Higiene</b>
+              <small id="catHigiene">0 itens</small>
+            </div>
+          </button>
+
+
+          <button class="cat" onclick="filterCategory('Limpeza')">
+            <span>🧽</span>
+
+            <div>
+              <b>Limpeza</b>
+              <small id="catLimpeza">0 itens</small>
+            </div>
+          </button>
+
+        </div>
+
+
+        <button
+          class="add secondary"
+          style="margin-top:12px"
+          onclick="clearDone()"
+        >
+          Limpar comprados
+        </button>
+
+      </aside>
+
+    </div>
+
+
+    <div class="footer-note">
+      Mais praticidade para você! ❤️
+    </div>
+
+  </div>
+
+
+  <div class="modal" id="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-head">
+
+        <div>
+          <h2 style="margin:0">Adicionar produto</h2>
+
+          <span class="small">
+            Coloque tudo o que precisa comprar.
+          </span>
+        </div>
+
+        <button class="close" onclick="closeModal()">
+          ✕
+        </button>
+
+      </div>
+
+
+      <div class="field">
+        <label>Nome do produto</label>
+
+        <input
+          id="name"
+          placeholder="Ex.: Macarrão espaguete"
+        >
+      </div>
+
+
+      <div class="row">
+
+        <div class="field">
+          <label>Quantidade</label>
+
+          <input
+            id="qty"
+            type="number"
+            min="1"
+            value="1"
+          >
+        </div>
+
+
+        <div class="field">
+          <label>Unidade</label>
+
+          <select id="unit">
+            <option>Unidade</option>
+            <option>Pacote</option>
+            <option>Kg</option>
+            <option>Litro</option>
+            <option>Caixa</option>
+          </select>
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Categoria</label>
+
+        <select id="category">
+          <option>Alimentos</option>
+          <option>Bebidas</option>
+          <option>Higiene</option>
+          <option>Limpeza</option>
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Observação</label>
+
+        <input
+          id="note"
+          placeholder="Ex.: marca preferida"
+        >
+
+      </div>
+
+
+      <button class="add" onclick="addProduct()">
+        ＋ Adicionar à lista
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="toast" id="toast"></div>
+
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+
+</body>
+</html>
